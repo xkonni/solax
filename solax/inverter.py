@@ -2,12 +2,15 @@ from typing import Dict, Tuple
 
 import aiohttp
 import voluptuous as vol
+import logging
 
 from solax import utils
 from solax.inverter_http_client import InverterHttpClient, Method
 from solax.response_parser import InverterResponse, ResponseDecoder, ResponseParser
-from solax.units import Measurement, Units
+from solax.units import Measurement, Total, Units
 
+_LOGGER = logging.getLogger(__name__)
+_LOGGER.setLevel(logging.INFO)
 
 class InverterError(Exception):
     """Indicates error communicating with inverter"""
@@ -87,8 +90,11 @@ class Inverter:
 
             (idx, unit_or_measurement, *_) = mapping
 
+            logging.warning(f"{name=}, {unit_or_measurement=}, {type(unit_or_measurement)}")
             if isinstance(unit_or_measurement, Units):
-                unit = Measurement(unit_or_measurement)
+                # unit = Measurement(unit_or_measurement)
+                logging.warning(f"skipping {name=}")
+                continue
             else:
                 unit = unit_or_measurement
             if isinstance(idx, tuple):

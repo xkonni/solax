@@ -4,34 +4,34 @@ import typing
 
 from solax.inverter import Inverter, InverterError
 from solax.inverters import (
-    QVOLTHYBG33P,
-    X1,
-    X3,
-    X3V34,
-    X1Boost,
-    X1HybridGen4,
-    X1Mini,
-    X1MiniV34,
-    X1Smart,
+    # QVOLTHYBG33P,
+    # X1,
+    # X3,
+    # X3V34,
+    # X1Boost,
+    # X1HybridGen4,
+    # X1Mini,
+    # X1MiniV34,
+    # X1Smart,
     X3HybridG4,
-    X3MicProG2,
-    XHybrid,
+    # X3MicProG2,
+    # XHybrid,
 )
 
 # registry of inverters
 REGISTRY = [
-    XHybrid,
-    X3,
-    X3V34,
+    # XHybrid,
+    # X3,
+    # X3V34,
     X3HybridG4,
-    X1,
-    X1Mini,
-    X1MiniV34,
-    X1Smart,
-    QVOLTHYBG33P,
-    X1Boost,
-    X1HybridGen4,
-    X3MicProG2,
+    # X1,
+    # X1Mini,
+    # X1MiniV34,
+    # X1Smart,
+    # QVOLTHYBG33P,
+    # X1Boost,
+    # X1HybridGen4,
+    # X3MicProG2,
 ]
 
 
@@ -65,7 +65,7 @@ class DiscoveryState:
 
     @classmethod
     async def _discovery_task(cls, i) -> Inverter:
-        logging.info("Trying inverter %s", i)
+        logging.warning("Trying inverter %s", i)
         await i.get_data()
         return i
 
@@ -77,11 +77,11 @@ class DiscoveryState:
                 self._tasks.add(task)
 
         while len(self._tasks) > 0:
-            logging.debug("%d discovery tasks are still running...", len(self._tasks))
+            logging.warning("%d discovery tasks are still running...", len(self._tasks))
             await asyncio.sleep(0.5)
 
         if self._discovered_inverter is not None:
-            logging.info("Discovered inverter: %s", self._discovered_inverter)
+            logging.warning("Discovered inverter: %s", self._discovered_inverter)
             return self._discovered_inverter
 
         msg = (

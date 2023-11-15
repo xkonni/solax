@@ -1,6 +1,7 @@
 import voluptuous as vol
 
-from solax.inverter import Inverter
+from solax import utils
+from solax.inverter import Inverter, InverterHttpClient, Method, ResponseParser
 from solax.units import Total, Units
 from solax.utils import div10, div100, pack_u16, to_signed, to_signed32, twoway_div10
 
@@ -26,6 +27,23 @@ class X3HybridG4(Inverter):
         },
         extra=vol.REMOVE_EXTRA,
     )
+
+    @classmethod
+    def _build(cls, host, port, pwd="", params_in_query=True):
+        url = utils.to_url(host, port)
+        http_client = InverterHttpClient(url, Method.POST, pwd)
+        if params_in_query:
+            http_client.with_default_query()
+        else:
+            http_client.with_default_data()
+
+        headers = {"X-Forwarded-For": "5.8.8.8"}
+        http_client.with_headers(headers)
+        schema = cls._schema
+        response_decoder = cls.response_decoder()
+        response_parser = ResponseParser(schema, response_decoder)
+        return cls(http_client, response_parser)
+
 
     @classmethod
     def build_all_variants(cls, host, port, pwd=""):
@@ -68,7 +86,7 @@ class X3HybridG4(Inverter):
             "Grid 1 Frequency": (16, Units.HZ, div100),
             "Grid 2 Frequency": (17, Units.HZ, div100),
             "Grid 3 Frequency": (18, Units.HZ, div100),
-            "Run mode": (19, Units.NONE),
+            # "Run mode": (19, Units.NONE),
             "Run mode text": (19, Units.NONE, X3HybridG4._decode_run_mode),
             "EPS 1 Voltage": (23, Units.W, div10),
             "EPS 2 Voltage": (24, Units.W, div10),
@@ -81,7 +99,6 @@ class X3HybridG4(Inverter):
             "EPS 3 Power": (31, Units.W, to_signed),
             "Feed-in Power ": (pack_u16(34, 35), Units.W, to_signed32),
             "Battery Power": (41, Units.W, to_signed),
-            "Radiator Temperature": (54, Units.C, to_signed),
             "Yield total": (pack_u16(68, 69), Total(Units.KWH), div10),
             "Yield today": (70, Units.KWH, div10),
             "Feed-in Energy": (pack_u16(86, 87), Total(Units.KWH), div100),
